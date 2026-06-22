@@ -2,7 +2,6 @@
 # ================================================================================
 # ARQUIVO PRINCIPAL DO NOSSO PROJETO - COLÔNIA AURORA
 # ================================================================================
-# Desenvolvido para a entrega da faculdade.
 # O sistema mostra o mapa da colônia espacial e roda buscas em grafos e menor caminho.
 #
 # Estrutura do nosso projeto:
