@@ -1,4 +1,4 @@
-1# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 ================================================================================
   SIGIC - SISTEMA INTELIGENTE DE GERENCIAMENTO DA INFRAESTRUTURA DA COLÔNIA
@@ -11,19 +11,19 @@
   - Execução de buscas em redes (BFS - Busca em Largura e DFS - Busca em Profundidade).
   - Cálculo de rotas otimizadas com desvio dinâmico de falhas (Dijkstra).
   - Simulação de contingências operacionais (Alteração de status do módulo).
+  - Detecção de conexões/pontos críticos da rede (Requisito 1.3).
   
   Estrutura do projeto:
   codigo_fonte.py (Arquivo Principal)
   arquivos_auxiliares/
       dados.py (Módulo com as estruturas de dados: Listas, Dicts e Matrizes)
-      algoritmos.py (Implementação de BFS, DFS e Dijkstra)
+      algoritmos.py (Implementação de BFS, DFS, Dijkstra e Pontos Críticos)
 ================================================================================
-
 """
 
 import sys
 from arquivos_auxiliares.dados import modulos_rede, dados_infraestrutura, conexoes_rede, matriz_distancias, status_infraestrutura
-from arquivos_auxiliares.algoritmos import bfs, dfs, dijkstra, obter_modulos_bloqueados
+from arquivos_auxiliares.algoritmos import bfs, dfs, dijkstra, obter_modulos_bloqueados, detectar_pontos_criticos
 
 # Cores
 COR_VERDE = "\033[92m"
@@ -68,7 +68,7 @@ def visualizar_rede():
         print(f"\n{COR_NEGRITO}{modulo}{COR_RESET} {mod_status} está conectado a:")
         for vizinho, distancia in vizinhos.items():
             viz_status = f"{COR_VERMELHO}(Em Manutenção){COR_RESET}" if vizinho in bloqueados else ""
-            print(f"  └──> {vizinho:<25} (Distância: {COR_AMARELO}{distancia}m{COR_RESET}) {viz_status}")
+            print(f"  └─► {vizinho:<25} (Distância: {COR_AMARELO}{distancia}m{COR_RESET}) {viz_status}")
 
     # Exibição da Matriz de Distâncias formatada
     cabecalho("MATRIZ DE DISTÂNCIAS DA REDE (MATRIZ DE ADJACÊNCIA)")
@@ -118,7 +118,7 @@ def executar_caminho_minimo():
             else:
                 print(f"Origem:  {COR_CIANO}{origem}{COR_RESET}")
                 print(f"Destino: {COR_CIANO}{destino}{COR_RESET}")
-                print(f"Rota calculada: {COR_VERDE}{' -> '.join(caminho)}{COR_RESET}")
+                print(f"Rota calculada: {COR_VERDE}{' ➔ '.join(caminho)}{COR_RESET}")
                 print(f"Distância total a ser percorrida: {COR_AMARELO}{distancia} metros{COR_RESET}")
         else:
             print(f"{COR_VERMELHO}Opção inválida! Selecione um número de 1 a {len(modulos_rede)}.{COR_RESET}")
@@ -133,7 +133,7 @@ def simular_infraestrutura():
     for idx, mod in enumerate(modulos_rede, 1):
         status = status_infraestrutura[mod]
         status_color = COR_VERDE if status == "Operacional" else COR_VERMELHO
-        print(f" [{idx}] {mod:<25} -> Status atual: {status_color}{status}{COR_RESET}")
+        print(f" [{idx}] {mod:<25} ➔ Status atual: {status_color}{status}{COR_RESET}")
         
     try:
         opcao = int(input("\nSelecione o módulo que deseja ALTERAR o status: "))
@@ -146,13 +146,13 @@ def simular_infraestrutura():
             status_infraestrutura[modulo_selecionado] = novo_status
             
             status_color = COR_VERMELHO if novo_status == "Em Manutenção" else COR_VERDE
-            print(f"\n{COR_VERDE}[OK] Status de '{modulo_selecionado}' atualizado com sucesso para {status_color}{novo_status}{COR_RESET}!")
+            print(f"\n{COR_VERDE}✔ Status de '{modulo_selecionado}' atualizado com sucesso para {status_color}{novo_status}{COR_RESET}!")
             
             # Simular impacto dinâmico na rota padrão de energia
-            print(f"\n[SIMULAÇÃO DINÂMICA] Recalculando rota crítica: Armazenamento de Energia -> Suporte Médico...")
+            print(f"\n[SIMULAÇÃO DINÂMICA] Recalculando rota crítica: Armazenamento de Energia ➔ Suporte Médico...")
             caminho, dist = dijkstra(conexoes_rede, "Armazenamento de Energia", "Suporte Médico")
             if caminho:
-                print(f"Nova Rota de Contingência: {COR_VERDE}{' -> '.join(caminho)}{COR_RESET} ({dist}m)")
+                print(f"Nova Rota de Contingência: {COR_VERDE}{' ➔ '.join(caminho)}{COR_RESET} ({dist}m)")
             else:
                 print(f"{COR_VERMELHO}AVISO CRÍTICO: Rota interrompida! Não há caminho operacional alternativo.{COR_RESET}")
         else:
@@ -181,14 +181,47 @@ def executar_buscas():
             ordem_dfs = dfs(conexoes_rede, inicio)
             
             print(f"\n{COR_NEGRITO}Busca em Largura (BFS) - Mapeamento por níveis/proximidade:{COR_RESET}")
-            print(f"  {COR_VERDE}{' -> '.join(ordem_bfs)}{COR_RESET}")
+            print(f"  {COR_VERDE}{' ➔ '.join(ordem_bfs)}{COR_RESET}")
             
             print(f"\n{COR_NEGRITO}Busca em Profundidade (DFS) - Exploração profunda de ramais:{COR_RESET}")
-            print(f"  {COR_AZUL}{' -> '.join(ordem_dfs)}{COR_RESET}")
+            print(f"  {COR_AZUL}{' ➔ '.join(ordem_dfs)}{COR_RESET}")
         else:
             print(f"{COR_VERMELHO}Opção inválida!{COR_RESET}")
     except ValueError:
         print(f"{COR_VERMELHO}Entrada inválida! Digite números inteiros.{COR_RESET}")
+
+def exibir_pontos_criticos():
+    """Exibe os pontos ou conexões críticas da rede que podem comprometer a infraestrutura (Req. 1.3)."""
+    cabecalho("DETECÇÃO DE PONTOS CRÍTICOS DA REDE")
+    print("Analisando a topologia da rede para identificar pontos de falha única...\n")
+    
+    # Chama a função e separa as duas listas que o algoritmos.py devolve
+    modulos, conexoes = detectar_pontos_criticos(conexoes_rede)
+    
+    # Verifica se as duas listas estão vazias
+    if not modulos and not conexoes:
+        print(f"{COR_VERDE}✔ Excelente! Nenhum ponto crítico ou de falha única foi detectado na configuração atual da rede.{COR_RESET}")
+    else:
+        print(f"{COR_VERMELHO}{COR_NEGRITO}⚠ ALERTA DE VULNERABILIDADE NA INFRAESTRUTURA ⚠{COR_RESET}")
+        print("Os elementos listados abaixo são cruciais. Se algum deles falhar ou for isolado,")
+        print("a integridade de conexões da colônia estará gravemente comprometida.")
+        print("-" * 80)
+        
+        idx = 1
+        # Exibe os módulos críticos (Pontos de articulação)
+        if modulos:
+            for mod in modulos:
+                print(f" [{idx}] Módulo Crítico (Articulação): {COR_VERMELHO}{COR_NEGRITO}{mod}{COR_RESET}")
+                idx += 1
+                
+        # Exibe as conexões críticas (Pontes)
+        if conexoes:
+            for u, v in conexoes:
+                print(f" [{idx}] Conexão Crítica (Ponte): {COR_AMARELO}{u}{COR_RESET} ➔ {COR_AMARELO}{v}{COR_RESET}")
+                idx += 1
+                
+        print("-" * 80)
+        print(f"{COR_AMARELO}Recomendação: Planejar rotas redundantes para mitigar os riscos nesses pontos.{COR_RESET}")
 
 def main():
     """Loop principal de navegação do menu."""
@@ -202,6 +235,7 @@ def main():
         print(f"  [{COR_AMARELO}3{COR_RESET}] Calcular Caminho Mínimo (Dijkstra)")
         print(f"  [{COR_AMARELO}4{COR_RESET}] Simular Falhas e Contingências Operacionais")
         print(f"  [{COR_AMARELO}5{COR_RESET}] Executar Mapeamento por Algoritmos de Busca (BFS & DFS)")
+        print(f"  [{COR_AMARELO}6{COR_RESET}] Detectar Pontos Críticos na Rede")
         print(f"  [{COR_AMARELO}0{COR_RESET}] Sair do Sistema")
         print("=" * 80)
         
@@ -217,6 +251,8 @@ def main():
                 simular_infraestrutura()
             elif opcao == "5":
                 executar_buscas()
+            elif opcao == "6":
+                exibir_pontos_criticos()
             elif opcao == "0":
                 print(f"\n{COR_VERDE}Finalizando o SIGIC! Obrigado!{COR_RESET}\n")
                 break
