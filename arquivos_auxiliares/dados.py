@@ -13,18 +13,41 @@ modulos_rede = [
     "Comunicação Terra-Marte"
 ]
 
-# 2) DICIONÁRIO DE INFORMAÇÕES DOS MÓDULOS
-# A chave é o nome do módulo e os valores são: [Consumo de Energia (MW), Prioridade (1 a 4), Status]
-# A prioridade vai de 1 (mais importante) até 4 (menos importante).
+# ====================================================================================
+# INTEGRAÇÃO DE DISCIPLINAS - CÁLCULO DIFERENCIAL APLICADO
+# O consumo de energia total C(x) de um módulo em função de sua atividade/carga x pode ser
+# modelado por C(x) = a * x + b. A derivada primeira C'(x) = a representa a taxa marginal de
+# variação constante do consumo por módulo, o que permite otimizações e previsibilidade.
+# ====================================================================================
+
+# 2) ESTRUTURAS DE DADOS DOS MÓDULOS (Listas, Matrizes, Dicionários e Tuplas)
+# Como exigido pelo requisito 1.4 do projeto, utilizamos TUPLAS imutáveis para guardar as
+# informações estruturais fixas de cada prédio, e DICIONÁRIOS para indexar os valores e
+# controlar o status operacional (que é dinâmico e mutável no simulador).
+#
+# Formato de cada TUPLA de dados fixos:
+# (Consumo_MW, Prioridade_Operacional, Capacidade_Armazenamento_kWh, Necessidade_Comunicacao)
 dados_infraestrutura = {
-    "Habitação Alpha": [45.5, 2, "Operacional"],
-    "Centro de Controle": [60.0, 1, "Operacional"],
-    "Armazenamento de Energia": [5.0, 1, "Operacional"],
-    "Suporte Médico": [25.0, 2, "Operacional"],
-    "Agricultura Biosfera-2": [35.0, 3, "Operacional"],
-    "Laboratório Científico": [5.0, 4, "Em Manutenção"],
-    "Produção de Oxigênio": [75.0, 1, "Operacional"],
-    "Comunicação Terra-Marte": [40.0, 2, "Operacional"]
+    "Habitação Alpha": (45.5, 2, 150, "Média"),
+    "Centro de Controle": (60.0, 1, 500, "Crítica"),
+    "Armazenamento de Energia": (5.0, 1, 2000, "Alta"),
+    "Suporte Médico": (25.0, 2, 100, "Alta"),
+    "Agricultura Biosfera-2": (35.0, 3, 80, "Média"),
+    "Laboratório Científico": (5.0, 4, 120, "Baixa"),
+    "Produção de Oxigênio": (75.0, 1, 300, "Crítica"),
+    "Comunicação Terra-Marte": (40.0, 2, 250, "Crítica")
+}
+
+# Dicionário mutável de status operacionais
+status_infraestrutura = {
+    "Habitação Alpha": "Operacional",
+    "Centro de Controle": "Operacional",
+    "Armazenamento de Energia": "Operacional",
+    "Suporte Médico": "Operacional",
+    "Agricultura Biosfera-2": "Operacional",
+    "Laboratório Científico": "Em Manutenção",
+    "Produção de Oxigênio": "Operacional",
+    "Comunicação Terra-Marte": "Operacional"
 }
 
 # 3) GRAFO DA REDE (Representação por Lista de Adjacência)

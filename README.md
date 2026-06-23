@@ -45,3 +45,4 @@ O sistema foi feito utilizando apenas a biblioteca padrão do Python, ou seja, *
 3. **Calcular Caminho Mínimo (Dijkstra):** Calcula a melhor rota de distribuição física e a menor distância física acumulada entre dois módulos, desviando automaticamente de módulos com falha.
 4. **Simular Contingências Operacionais:** Permite ligar/desligar módulos (mudar status para "Em Manutenção" ou "Operacional") para simular falhas e ver o Dijkstra recalcular a rota em tempo real.
 5. **Executar Algoritmos de Busca (BFS & DFS):** Demonstra de forma prática a ordem de varredura na rede a partir de um módulo de início escolhido pelo usuário.
+6. **Detectar Pontos Críticos na Rede (Busca com DFS):** Identifica automaticamente quais módulos (pontos de articulação) e conexões (pontes) são vitais para a rede, cuja queda ou interrupção isolaria partes da colônia.

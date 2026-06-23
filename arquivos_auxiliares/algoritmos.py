@@ -3,15 +3,81 @@
 # Fizemos funções para BFS, DFS e Dijkstra, adaptadas para ignorar os módulos que estão em manutenção.
 
 from heapq import heappush, heappop
-from arquivos_auxiliares.dados import dados_infraestrutura
+from arquivos_auxiliares.dados import dados_infraestrutura, status_infraestrutura
 
 def obter_modulos_bloqueados():
-    # Olha o dicionário e devolve uma lista com os módulos que não estão "Operacional"
+    # Olha o dicionário de status e devolve uma lista com os módulos que não estão "Operacional"
     bloqueados = []
-    for modulo, info in dados_infraestrutura.items():
-        if info[2] != "Operacional":
+    for modulo, status in status_infraestrutura.items():
+        if status != "Operacional":
             bloqueados.append(modulo)
     return bloqueados
+
+def detectar_pontos_criticos(grafo):
+    """
+    Identifica:
+    1. Módulos Críticos (Pontos de Articulação): cuja falha desconecta a rede.
+    2. Conexões Críticas (Pontes): cujo rompimento desconecta a rede.
+    Utiliza Busca em Profundidade (DFS) para verificar a conectividade do grafo ativo.
+    """
+    ativos = [no for no in grafo if no not in obter_modulos_bloqueados()]
+    if len(ativos) <= 1:
+        return [], []
+
+    # 1. Encontrar Módulos Críticos (Pontos de Articulação)
+    modulos_criticos = []
+    for no_teste in ativos:
+        restantes = [n for n in ativos if n != no_teste]
+        if not restantes:
+            continue
+            
+        # DFS simples para ver se todos os nós restantes continuam conectados
+        inicio = restantes[0]
+        visitados = set()
+        pilha = [inicio]
+        while pilha:
+            atual = pilha.pop()
+            if atual not in visitados:
+                visitados.add(atual)
+                for vizinho in grafo[atual]:
+                    if vizinho in restantes and vizinho not in visitados:
+                        pilha.append(vizinho)
+        
+        # Se algum nó ficou isolado / inalcançável, no_teste é um ponto de articulação
+        if len(visitados) < len(restantes):
+            modulos_criticos.append(no_teste)
+
+    # 2. Encontrar Conexões Críticas (Pontes)
+    # Como as conexões são bidirecionais, representamos cada aresta ordenada para evitar duplicidade
+    arestas = set()
+    for no in ativos:
+        for vizinho in grafo[no]:
+            if vizinho in ativos:
+                aresta = tuple(sorted([no, vizinho]))
+                arestas.add(aresta)
+
+    conexoes_criticas = []
+    for u, v in arestas:
+        # Testa remover temporariamente a conexão (u, v) do grafo ativo
+        inicio = u
+        visitados = set()
+        pilha = [inicio]
+        while pilha:
+            atual = pilha.pop()
+            if atual not in visitados:
+                visitados.add(atual)
+                for vizinho in grafo[atual]:
+                    if vizinho in ativos and vizinho not in visitados:
+                        # Ignora a conexão (u, v) removida
+                        if (atual == u and vizinho == v) or (atual == v and vizinho == u):
+                            continue
+                        pilha.append(vizinho)
+        
+        # Se a remoção da conexão desconectou o grafo
+        if len(visitados) < len(ativos):
+            conexoes_criticas.append((u, v))
+
+    return modulos_criticos, conexoes_criticas
 
 def bfs(grafo, inicio):
     # Busca em Largura: visita os vizinhos mais próximos primeiro (por nível)
