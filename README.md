@@ -2,8 +2,11 @@
 
 ## Participantes
 Eduardo Lopes da Silveira Mota -RM 563418
+
 Gabriel Luís de Lima Ramos - RM 568984
+
 Mayara Luisa Vicente Rosa - RM 571955
+
 Victor de Camargo Gomes - RM 568912
 
 Este é o projeto de entrega da nossa faculdade desenvolvido para a **FIAP**. O objetivo do sistema é representar, monitorar e otimizar as conexões de energia, suporte de vida e comunicações da colônia espacial **Aurora Siger** em Marte, utilizando conceitos de Teoria dos Grafos e algoritmos de busca/caminho mínimo.
