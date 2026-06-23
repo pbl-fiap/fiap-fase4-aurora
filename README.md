@@ -1,6 +1,7 @@
 # SIGIC - Sistema Inteligente de Gerenciamento da Infraestrutura da Colônia (Aurora Siger)
 
 ## Participantes
+
 Eduardo Lopes da Silveira Mota -RM 563418
 
 Gabriel Luís de Lima Ramos - RM 568984
